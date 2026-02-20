@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<RootNamespace>Goodtocode.McpClient</RootNamespace>
+		<AssemblyName>Goodtocode.McpClient</AssemblyName>
+		<Version>1.0.0</Version>
+		<FileVersion>1.0.0</FileVersion>
+		<PackageVersion>1.0.0</PackageVersion>
+		<InformationalVersion>1.0.0</InformationalVersion>
+        <TargetFramework>netstandard2.1</TargetFramework>
+		<IsPackable>true</IsPackable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<PackageId>Goodtocode.SecuredHttpClient</PackageId>
+		<Authors>Robert Good</Authors>
+		<Company>Goodtocode</Company>
+		<Description></Description>
+        <PackageTags>MCP;oauth2;access-token;resilience;blazor;aspnetcore;dotnet;token-auth;dependency-injection;pkce;client-credentials;secure;rest;api</PackageTags>
+		<RepositoryUrl>https://github.com/Goodtocode/aspect-mcpclient</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/Goodtocode/aspect-mcpclient</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>Copyright © 2026 Goodtocode</Copyright>
+		<PackageIcon>Goodtocode-icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="Goodtocode-icon.png" Pack="true" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
+	  <PackageReference Include="System.Text.Json" Version="10.0.3" />
+	</ItemGroup>
+
+</Project>

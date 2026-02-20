@@ -1,22 +1,21 @@
-# Goodtocode.SecuredHttpClient
+# Goodtocode.HttpClient
 
-[![NuGet CI/CD](https://github.com/goodtocode/aspect-securedhttpclient/actions/workflows/gtc-securedhttpclient-nuget.yml/badge.svg)](https://github.com/goodtocode/aspect-securedhttpclient/actions/workflows/gtc-securedhttpclient-nuget.yml)
-
-A secure, resilient HTTP client registration and access token management library for .NET and Blazor. Easily add OAuth2-protected HttpClients to your application with support for both Client Credentials and Authorization Code PKCE flows.
+A secure, resilient HTTP client registration and access token management library for .NET 9 and Blazor. Easily add OAuth2-protected HttpClients to your application with support for both Client Credentials and Authorization Code PKCE flows.
 
 ## Features
 - Register HttpClients that automatically acquire and attach OAuth2 access tokens
 - Supports Client Credentials and Authorization Code PKCE flows
 - Built-in token caching and refresh
 - Pluggable token providers via `IAccessTokenProvider`
+- Resilience (retry with jitter) for HTTP requests
 - Extension methods for adding bearer tokens to requests
-- Simple integration with Blazor, ASP.NET Core, and .NET DI
+- Simple integration with Blazor, ASP.NET Core, and .NET 9 DI
 
 ## Installation
 Install via NuGet:
 
 ```
-dotnet add package Goodtocode.SecuredHttpClient
+dotnet add package Goodtocode.HttpClient
 ```
 
 ## Quick Start
@@ -81,7 +80,7 @@ public static IServiceCollection AddAccessTokenHttpClient(
 
 ### 2. Add Bearer Token to HttpClient (Manual)
 ```csharp
-using Goodtocode.SecuredHttpClient.Extensions;
+using Goodtocode.HttpClient.Extensions;
 
 httpClient.AddBearerToken("your-access-token");
 ```
@@ -100,11 +99,5 @@ httpClient.AddBearerToken("your-access-token");
 MIT
 
 ## Contact
-- [GitHub Repo](https://github.com/goodtocode/aspect-securedhttpclient)
+- [GitHub Repo](https://github.com/goodtocode/aspect-httpclient)
 - [@goodtocode](https://twitter.com/goodtocode)
-
-## Version History
-
-| Version | Date       | Changes                       |
-|---------|------------|-------------------------------|
-| 1.1.0   | 2026-01-22 | Bump from .NET 9 to .NET 10   |
