@@ -1,106 +1,120 @@
-# Goodtocode.SecuredHttpClient
+# Goodtocode.McpClient
 
-[![NuGet CI/CD](https://github.com/goodtocode/aspect-securedhttpclient/actions/workflows/gtc-securedhttpclient-nuget.yml/badge.svg)](https://github.com/goodtocode/aspect-securedhttpclient/actions/workflows/gtc-securedhttpclient-nuget.yml)
+[![NuGet CI/CD](https://github.com/goodtocode/aspect-mcpclient/actions/workflows/gtc-mcpclient-nuget.yml/badge.svg)](https://github.com/goodtocode/aspect-mcpclient/actions/workflows/gtc-mcpclient-nuget.yml)
 
-A secure, resilient HTTP client registration and access token management library for .NET and Blazor. Easily add OAuth2-protected HttpClients to your application with support for both Client Credentials and Authorization Code PKCE flows.
+A standardized, resilient client library for Model Context Protocol (MCP) communication in .NET. Designed for developers who need reliable, typed, and transport-agnostic messaging between MCP-compliant AI agents and services.
 
 ## Features
-- Register HttpClients that automatically acquire and attach OAuth2 access tokens
-- Supports Client Credentials and Authorization Code PKCE flows
-- Built-in token caching and refresh
-- Pluggable token providers via `IAccessTokenProvider`
-- Extension methods for adding bearer tokens to requests
-- Simple integration with Blazor, ASP.NET Core, and .NET DI
+- Strongly-typed envelope model for all MCP operations
+- Transport-agnostic: works with HTTP, gRPC, and other protocols
+- Built-in support for result and problem handling
+- Continuation and paging for large data sets
+- Batch operations for efficient multi-message processing
+- Extensible serialization via `IMcpSerializer`
+- Easy integration with .NET DI and HttpClient
+- Compatible with custom delegating handlers (e.g., for authentication)
 
 ## Installation
+
 Install via NuGet:
 
-```
-dotnet add package Goodtocode.SecuredHttpClient
-```
+    dotnet add package Goodtocode.McpClient
 
-## Quick Start
+## Usage
 
-### 1. Register a Secured HttpClient (Blazor/ASP.NET Core)
+### 1. Register McpClient with `IServiceCollection`
 
-#### Client Credentials Flow
-```csharp
-services.AddClientCredentialHttpClient(
-    configuration, // IConfiguration
-    clientName: "MyApiClient",
-    baseAddress: new Uri("https://api.example.com"),
-    maxRetry: 5 // optional
-);
-```
+You can register your own `HttpClient` and custom delegating handler (such as from `Goodtocode.SecuredHttpClient`) for secure, resilient communication:
 
-#### Authorization Code PKCE Flow
-```csharp
-services.AddAuthCodePkceHttpClient(
-    configuration, // IConfiguration
-    clientName: "MyApiClient",
-    baseAddress: new Uri("https://api.example.com"),
-    maxRetry: 5 // optional
-);
-```
+    using Goodtocode.McpClient.Client;
+    using Goodtocode.SecuredHttpClient; // For token handler
+    using Microsoft.Extensions.DependencyInjection;
 
-#### Custom Registration for Blazor RCL
-```csharp
-public static IServiceCollection AddAccessTokenHttpClient(
-    this IServiceCollection services,
-    Action<ResilientHttpClientOptions> configureOptions)
-{
-    var options = new ResilientHttpClientOptions();
-    configureOptions(options);
-
-    if (options.BaseAddress == null)
-        throw new ArgumentNullException(nameof(configureOptions), "BaseAddress must be provided.");
-    if (string.IsNullOrWhiteSpace(options.ClientName))
-        throw new ArgumentNullException(nameof(configureOptions), "ClientName must be provided.");
-
-    services.AddOptions<AuthCodePkceOptions>()
-        .ValidateDataAnnotations()
-        .ValidateOnStart();
-    services.AddScoped<IAccessTokenProvider, DownstreamApiAccessTokenProvider>();
-    services.AddScoped<TokenHandler>();
-
-    services.AddHttpClient(options.ClientName, clientOptions =>
+    // Register a secured HttpClient for MCP communication
+    services.AddHttpClient("McpSecuredClient", client =>
     {
-        clientOptions.DefaultRequestHeaders.Clear();
-        clientOptions.BaseAddress = options.BaseAddress;
+        client.BaseAddress = new Uri("https://mcp-agent.example.com");
     })
-    .AddHttpMessageHandler<TokenHandler>()
-    .AddStandardResilienceHandler(resilienceOptions =>
+    .AddHttpMessageHandler<TokenHandler>(); // Provided by Goodtocode.SecuredHttpClient
+
+    // Register McpHttpClient using the named HttpClient
+    services.AddTransient<IMcpClient>(sp =>
     {
-        resilienceOptions.Retry.UseJitter = true;
-        resilienceOptions.Retry.MaxRetryAttempts = options.MaxRetry;
+        var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+        var httpClient = httpClientFactory.CreateClient("McpSecuredClient");
+        return new McpHttpClient(httpClient);
     });
 
-    return services;
-}
-```
+### 2. Send a Typed MCP Request
 
-### 2. Add Bearer Token to HttpClient (Manual)
-```csharp
-using Goodtocode.SecuredHttpClient.Extensions;
+    using Goodtocode.McpClient.Client;
 
-httpClient.AddBearerToken("your-access-token");
-```
+    var mcpClient = serviceProvider.GetRequiredService<IMcpClient>();
+
+    var request = new MyRequestType { /* ... */ };
+    var envelope = await mcpClient.SendAsync<MyRequestType, MyResponseType>(
+        operation: "my-operation",
+        path: "/api/endpoint",
+        request: request
+    );
+
+    if (envelope.HasResult)
+    {
+        var result = envelope.Result;
+        // Handle result
+    }
+    else if (envelope.HasProblem)
+    {
+        var problem = envelope.Problem;
+        // Handle error
+    }
+
+### 3. Envelope Model
+
+All MCP responses are wrapped in an `Envelope<T>`:
+
+    public class Envelope<T>
+    {
+        public string Operation { get; }
+        public string CorrelationId { get; }
+        public DateTimeOffset SentUtc { get; }
+        public T? Result { get; }
+        public Problem? Problem { get; }
+        public Continuation? Continue { get; }
+        public IReadOnlyDictionary<string, string>? Metadata { get; }
+        public bool HasResult => Result != null && Problem == null;
+        public bool HasProblem => Problem != null;
+    }
+
+### 4. Paging and Batch Support
+
+- Use `PageResult<T>` for paged data.
+- Use `BatchItem<T>` for batch operations.
+
+### 5. Custom Serialization
+
+You can provide your own serializer by implementing `IMcpSerializer` and passing it to `McpHttpClient`.
+
+### 6. Communicating Between MCP Agents
+
+- Standardize all requests and responses using the envelope model.
+- Use correlation IDs for traceability.
+- Handle problems and errors using the `Problem` type.
+- Use continuation tokens for streaming or paged data.
+- Secure communication with delegating handlers (e.g., `TokenHandler` from `Goodtocode.SecuredHttpClient`).
 
 ## Options
-- `ClientCredentialOptions`: For client credentials flow (ClientId, ClientSecret, TokenUrl, Scope)
-- `AuthCodePkceOptions`: For PKCE flow (ClientId, CodeVerifier, RedirectUri, TokenUrl, Scope)
-- `ResilientHttpClientOptions`: For base address, client name, and retry settings
 
-## How It Works
-- Token providers implement `IAccessTokenProvider` and handle token acquisition and caching
-- `TokenHandler` automatically attaches the access token to outgoing requests
-- Resilience is provided via retry policies with jitter
+- `McpSendOptions`: Control correlation, idempotency, timeout, and headers.
+- `IMcpSerializer`: Plug in custom serialization (default: System.Text.Json).
 
 ## License
+
 MIT
 
 ## Contact
-- [GitHub Repo](https://github.com/goodtocode/aspect-securedhttpclient)
+
+- [GitHub Repo](https://github.com/goodtocode/aspect-mcpclient)
 - [@goodtocode](https://twitter.com/goodtocode)
 
 ## Version History

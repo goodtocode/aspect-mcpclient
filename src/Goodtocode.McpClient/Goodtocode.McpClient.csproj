@@ -15,7 +15,7 @@
 		<PackageId>Goodtocode.SecuredHttpClient</PackageId>
 		<Authors>Robert Good</Authors>
 		<Company>Goodtocode</Company>
-		<Description></Description>
+		<Description>A standardized, resilient client library for Model Context Protocol (MCP) communication in .NET. Designed for developers who need reliable, typed, and transport-agnostic messaging between MCP-compliant AI agents and services.</Description>
 		<PackageTags>MCP;oauth2;access-token;resilience;blazor;aspnetcore;dotnet;token-auth;dependency-injection;pkce;client-credentials;secure;rest;api</PackageTags>
 		<RepositoryUrl>https://github.com/Goodtocode/aspect-mcpclient</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/Goodtocode/aspect-mcpclient</PackageProjectUrl>
