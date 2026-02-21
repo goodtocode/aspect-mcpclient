@@ -12,7 +12,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<PackageId>Goodtocode.SecuredHttpClient</PackageId>
+		<PackageId>Goodtocode.McpClient</PackageId>
 		<Authors>Robert Good</Authors>
 		<Company>Goodtocode</Company>
 		<Description>A standardized, resilient client library for Model Context Protocol (MCP) communication in .NET. Designed for developers who need reliable, typed, and transport-agnostic messaging between MCP-compliant AI agents and services.</Description>
