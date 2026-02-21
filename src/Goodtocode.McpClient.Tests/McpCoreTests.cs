@@ -140,7 +140,7 @@ namespace Goodtocode.McpClient.Tests
             var mcpClient = new McpHttpClient(httpClient);
             var request = 123;
             // Act
-            var envelope = await mcpClient.SendAsync<int, int>("op", "http://test", request);
+            var envelope = await mcpClient.SendAsync<int, int>(operation: "op", path: "http://test", request: request, options: null, ct: CancellationToken.None);
             // Assert
             Assert.IsNotNull(envelope);
             Assert.AreEqual(456, envelope.Result);
