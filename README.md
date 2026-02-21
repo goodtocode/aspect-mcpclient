@@ -31,13 +31,12 @@ You can register your own `HttpClient` and custom delegating handler (such as fr
     using Microsoft.Extensions.DependencyInjection;
 
     // Register a secured HttpClient for MCP communication
-    services.AddHttpClient("McpSecuredClient", client =>
-    {
-        client.BaseAddress = new Uri("https://mcp-agent.example.com");
-    })
-    .AddHttpMessageHandler<TokenHandler>(); // Provided by Goodtocode.SecuredHttpClient
+    services.AddClientCredentialHttpClient(
+        configuration,
+        clientName: "McpSecuredClient",
+        baseAddress: new Uri("https://mcp-agent.example.com")
+    );
 
-    // Register McpHttpClient using the named HttpClient
     services.AddTransient<IMcpClient>(sp =>
     {
         var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
@@ -121,4 +120,4 @@ MIT
 
 | Version | Date       | Changes                       |
 |---------|------------|-------------------------------|
-| 1.1.0   | 2026-01-22 | Bump from .NET 9 to .NET 10   |
+| 1.1.0   | 2026-01-22 | Initial version               |
