@@ -1,33 +1,23 @@
-﻿using Goodtocode.SecuredHttpClient.Middleware;
-using Goodtocode.SecuredHttpClient.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
-namespace Goodtocode.SecuredHttpClient;
+namespace Goodtocode.McpClient;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddClientCredentialHttpClient(this IServiceCollection services,
-        IConfiguration configuration,
-        string clientName,
-        Uri baseAddress)
+    /// <summary>
+    /// Registers a named HttpClient for MCP with base address. Consumers can add handlers externally.
+    /// Example usage:
+    ///   services.AddMcpHttpClient("Curator", new Uri("https://localhost:5007"));
+    ///   services.AddHttpClient("Curator").AddHttpMessageHandler<TokenHandler>(); // from your other package
+    /// </summary>
+    public static IServiceCollection AddMcpHttpClient(this IServiceCollection services, string name, Uri baseAddress, TimeSpan? timeout = null)
     {
-        services.AddSingleton<IValidateOptions<ClientCredentialOptions>, ClientCredentialOptionsValidation>();
-        services.AddOptions<ClientCredentialOptions>()
-        .Bind(configuration.GetSection(nameof(ClientCredentialOptions)))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-        services.AddScoped<IAccessTokenProvider, ClientCredentialTokenProvider>();
-        services.AddTransient<TokenHandler>();
-
-        services.AddHttpClient(clientName, options =>
+        services.AddHttpClient(name, http =>
         {
-            options.DefaultRequestHeaders.Clear();
-            options.BaseAddress = baseAddress;
-        })
-            .AddHttpMessageHandler<TokenHandler>();
-
+            http.BaseAddress = baseAddress;
+            if (timeout.HasValue) http.Timeout = timeout.Value;
+        });
         return services;
     }
 }

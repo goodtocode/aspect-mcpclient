@@ -7,7 +7,7 @@
 		<FileVersion>1.0.0</FileVersion>
 		<PackageVersion>1.0.0</PackageVersion>
 		<InformationalVersion>1.0.0</InformationalVersion>
-        <TargetFramework>netstandard2.1</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<IsPackable>true</IsPackable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -16,7 +16,7 @@
 		<Authors>Robert Good</Authors>
 		<Company>Goodtocode</Company>
 		<Description></Description>
-        <PackageTags>MCP;oauth2;access-token;resilience;blazor;aspnetcore;dotnet;token-auth;dependency-injection;pkce;client-credentials;secure;rest;api</PackageTags>
+		<PackageTags>MCP;oauth2;access-token;resilience;blazor;aspnetcore;dotnet;token-auth;dependency-injection;pkce;client-credentials;secure;rest;api</PackageTags>
 		<RepositoryUrl>https://github.com/Goodtocode/aspect-mcpclient</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/Goodtocode/aspect-mcpclient</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -31,9 +31,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
-	  <PackageReference Include="System.Text.Json" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
 	</ItemGroup>
 
 </Project>
