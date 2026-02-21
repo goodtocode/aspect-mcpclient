@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/gtc-securedhttpclient-nuget.yml
+      - .github/workflows/gtc-McpClient-nuget.yml
       - src/**
   push:
     branches:
       - main
     paths:
-      - .github/workflows/gtc-securedhttpclient-nuget.yml
+      - .github/workflows/gtc-McpClient-nuget.yml
       - src/**
   workflow_dispatch:
     inputs:
@@ -33,11 +33,11 @@ env:
   CONFIGURATION: "Release"
   SCRIPTS_PATH: "./.github/scripts"
   SRC_PATH: "./src"
-  PROJECT_PATH: "Goodtocode.SecuredHttpClient"
-  PROJECT_FILE: "Goodtocode.SecuredHttpClient.csproj"
-  SRC_SLN: "Goodtocode.SecuredHttpClient.sln"
-  TEST_PATH: "Goodtocode.SecuredHttpClient.Tests"
-  TEST_PROJECT: "Goodtocode.SecuredHttpClient.Tests.csproj"
+  PROJECT_PATH: "Goodtocode.McpClient"
+  PROJECT_FILE: "Goodtocode.McpClient.csproj"
+  SRC_SLN: "Goodtocode.McpClient.sln"
+  TEST_PATH: "Goodtocode.McpClient.Tests"
+  TEST_PROJECT: "Goodtocode.McpClient.Tests.csproj"
 jobs:
   ci:
     name: "NuGet CI"
