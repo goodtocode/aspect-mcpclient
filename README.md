@@ -24,6 +24,8 @@ Install via NuGet:
 
 ### 1. Register McpClient with `IServiceCollection`
 
+#### Use Case 1: Client Credential Flow
+
 You can register your own `HttpClient` and custom delegating handler (such as from `Goodtocode.SecuredHttpClient`) for secure, resilient communication:
 
     using Goodtocode.McpClient.Client;
@@ -41,6 +43,42 @@ You can register your own `HttpClient` and custom delegating handler (such as fr
     {
         var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
         var httpClient = httpClientFactory.CreateClient("McpSecuredClient");
+        return new McpHttpClient(httpClient);
+    });
+
+#### Use Case 2: On-Behalf-Of (OBO) Flow for Downstream API Calls
+
+This flow allows your application to acquire an access token on behalf of a signed-in user and use it to call downstream APIs securely.
+
+    using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+    using Microsoft.Identity.Web;
+    using Goodtocode.SecuredHttpClient;
+    using Goodtocode.McpClient.Client;
+
+    // Register authentication and OBO token acquisition
+    services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApp(configuration.GetSection("EntraExternalId"))
+        .EnableTokenAcquisitionToCallDownstreamApi()
+        .AddInMemoryTokenCaches()
+        .AddDownstreamApi("BackendApi", configOptions =>
+        {
+            configOptions.BaseUrl = configuration["BackendApi:BaseUrl"];
+            configOptions.Scopes = [$"api://{configuration["BackendApi:ClientId"]}/.default", "User.Read"];
+        });
+
+    // Register a secured HttpClient for OBO flow
+    services.AddAccessTokenHttpClient(options =>
+    {
+        options.ClientName = "McpOboClient";
+        options.BaseAddress = new Uri(configuration["BackendApi:BaseUrl"]);
+        options.MaxRetry = 5;
+    });
+
+    // Register McpHttpClient using the OBO HttpClient
+    services.AddTransient<IMcpClient>(sp =>
+    {
+        var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+        var httpClient = httpClientFactory.CreateClient("McpOboClient");
         return new McpHttpClient(httpClient);
     });
 
