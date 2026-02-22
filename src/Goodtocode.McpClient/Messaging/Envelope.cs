@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Goodtocode.McpClient.Abstractions;
+namespace Goodtocode.McpClient.Messaging;
 
 /// <summary>
 /// Transport-agnostic envelope for all MCP operations.

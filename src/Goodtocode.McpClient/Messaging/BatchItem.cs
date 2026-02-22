@@ -1,4 +1,4 @@
-namespace Goodtocode.McpClient.Abstractions;
+namespace Goodtocode.McpClient.Messaging;
 
 public class BatchItem<TItem>(TItem? result, Problem? problem = null, string? key = null)
 {

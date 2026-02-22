@@ -1,4 +1,4 @@
-namespace Goodtocode.McpClient.Abstractions;
+namespace Goodtocode.McpClient.Messaging;
 
 public class Problem(string code, string message, string? target = null, IReadOnlyDictionary<string, string[]>? details = null)
 {
