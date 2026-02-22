@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Goodtocode.McpClient.Abstractions;
+namespace Goodtocode.McpClient.Messaging;
 
 public static class McpEnvelope
 {

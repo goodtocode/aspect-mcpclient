@@ -1,3 +1,5 @@
+using Goodtocode.McpClient.Messaging;
+
 namespace Goodtocode.McpClient.Abstractions;
 
 public interface IMcpClient

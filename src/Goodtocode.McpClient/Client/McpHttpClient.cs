@@ -1,5 +1,7 @@
 using Goodtocode.McpClient.Abstractions;
+using Goodtocode.McpClient.Messaging;
 using System.Net;
+using System.Text.Json;
 
 namespace Goodtocode.McpClient.Client;
 
@@ -56,9 +58,23 @@ public class McpHttpClient(HttpClient http, IMcpSerializer? serializer = null) :
             if (options.ThrowOnProblem) throw new McpTransportException(timeoutProblem, HttpStatusCode.RequestTimeout, oce);
             return envTimeout;
         }
+        catch (HttpRequestException hre)
+        {
+            var transportProblem = new Problem("TransportError", "Network or HTTP error occurred. Please check your HttpClient setup, base address, authentication handler, and network connectivity.");
+            var envTransport = new Envelope<TResponse>(operation, correlationId, DateTimeOffset.UtcNow, default, transportProblem);
+            if (options.ThrowOnProblem) throw new McpTransportException(transportProblem, null, hre);
+            return envTransport;
+        }
+        catch (ArgumentException ae)
+        {
+            var transportProblem = new Problem("TransportError", "Invalid argument or misconfiguration detected. Please verify your HttpClient and request parameters.");
+            var envTransport = new Envelope<TResponse>(operation, correlationId, DateTimeOffset.UtcNow, default, transportProblem);
+            if (options.ThrowOnProblem) throw new McpTransportException(transportProblem, null, ae);
+            return envTransport;
+        }
         catch (Exception ex)
         {
-            var transportProblem = new Problem("TransportError", ex.Message);
+            var transportProblem = new Problem("TransportError", "An unexpected error occurred. Please check your HttpClient setup and network connectivity.");
             var envTransport = new Envelope<TResponse>(operation, correlationId, DateTimeOffset.UtcNow, default, transportProblem);
             if (options.ThrowOnProblem) throw new McpTransportException(transportProblem, null, ex);
             return envTransport;
@@ -68,11 +84,25 @@ public class McpHttpClient(HttpClient http, IMcpSerializer? serializer = null) :
         try
         {
             envelope = await _serializer.ReadFromHttpAsync<Envelope<TResponse>>(httpResp.Content, token)
-                                        .ConfigureAwait(false);
+                                .ConfigureAwait(false);
+        }
+        catch (TaskCanceledException)
+        {
+            // Check if the cancellation was due to a timeout
+            var isTimeout = options.Timeout.HasValue && !ct.IsCancellationRequested;
+            var parseProblem = isTimeout && options.Timeout != null
+                ? new Problem("Timeout", $"Request timed out after {options.Timeout.Value.TotalMilliseconds:F0} ms.", null, null)
+                : new Problem("DeserializeError", "Deserialization was canceled or timed out.");
+            envelope = new Envelope<TResponse>(operation, correlationId, DateTimeOffset.UtcNow, default, parseProblem);
+        }
+        catch (JsonException je)
+        {
+            var parseProblem = new Problem("DeserializeError", $"Failed to parse response: {je.Message}");
+            envelope = new Envelope<TResponse>(operation, correlationId, DateTimeOffset.UtcNow, default, parseProblem);
         }
         catch (Exception ex)
         {
-            var parseProblem = new Problem("DeserializeError", $"Failed to parse response: {ex.Message}");
+            var parseProblem = new Problem("DeserializeError", $"Unexpected error during deserialization: {ex.Message}");
             envelope = new Envelope<TResponse>(operation, correlationId, DateTimeOffset.UtcNow, default, parseProblem);
         }
 

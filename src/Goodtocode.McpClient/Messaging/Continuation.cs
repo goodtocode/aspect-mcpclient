@@ -1,4 +1,4 @@
-namespace Goodtocode.McpClient.Abstractions;
+namespace Goodtocode.McpClient.Messaging;
 
 public class Continuation(string token, int? nextPageSize = null)
 {

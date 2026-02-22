@@ -1,4 +1,4 @@
-namespace Goodtocode.McpClient.Abstractions;
+namespace Goodtocode.McpClient.Messaging;
 
 public class PageResult<TItem>(IReadOnlyList<TItem> items, int pageNumber, int pageSize, long? totalCount = null)
 {
